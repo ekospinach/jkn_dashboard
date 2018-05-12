@@ -100,17 +100,24 @@
                                     <tr>
                                         <td width="30%">
                                             <!-- label> &nbsp;Periode: </label -->
-                                            
+                                            <div class="form-group">
+                                                <select id="select_tahun" class="form-control" style="width: 100%;">
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>&nbsp;&nbsp;&nbsp;</td><td width="70%">
+                                            <!-- label> &nbsp;Periode: </label -->
+                                            <div class="form-group">
+                                                <select id="select_bulan" class="form-control" style="width: 100%;">
+                                                </select>
+                                            </div>
                                         </td>
                                         <td>&nbsp;&nbsp;&nbsp;</td>
-                                        <td width="33%">
-                                            <!-- label> &nbsp;Propinsi: </label -->
-                                            
-                                        </td>
-                                        <td>&nbsp;&nbsp;&nbsp;</td>
-                                        <td width="37%">
-                                            <label>&nbsp;<br /><br /></label>
-                                            
+                                        <td width="10%">
+                                            <!-- label> &nbsp;Cari: </label -->
+                                            <div class="form-group">                
+                                                <div id="btn_submit" type="submit" class="btn btn-primary"><span style="font-weight: bold;">TAMPILKAN</span></div>                                                                    
+                                            </div>
                                         </td>                                
                                     </tr>
                                 </table>

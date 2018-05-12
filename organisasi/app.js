@@ -1,18 +1,87 @@
 $(function () {
+    var getParameterByName = function(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
     
-    var load_data = function(periode, propinsi, kabupaten) {
+    var getParameterByName = function(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+    
+    $('#select_tahun').on('change', function (e) {
+        loadBulan(this.value);        
+    });
+    
+    $('#btn_submit').on('click', function (e) {
+        loadData($('#select_tahun').val(), $('#select_bulan').val());
+    });
+    
+    var loadTahun = function() {
+        $("#select_tahun").val('');
+        $("#select_tahun").empty();
+        
+        $.ajax({
+            type: 'POST',
+            crossDomain: true,
+            jsonpCallback: "receivetahundatastore",
+            url: server+'/store/tahunDataStore.php',
+            dataType: 'jsonp',
+            success: function(data) {
+                var topics = data['topics'];
+                var option = '';
+                for(var key in topics) {
+                    option+='<option value="'+topics[key]['tahun']+'"'+(topics[key]['selected']?'selected="selected"':'')+'>'+topics[key]['tahun']+'</option>';
+                }
+                $(option).appendTo('#select_tahun');
+            },
+            error: function(jqXHR, textStatus, errorThrown) { 
+                load_tahun();
+            } 
+        });
+    };
+    
+    var loadBulan = function(tahun) {
+        $("#select_bulan").val('');
+        $("#select_bulan").empty();
+        
+        $.ajax({
+            type: 'POST',
+            crossDomain: true,
+            jsonpCallback: "receivebulandatastore",
+            url: server+'/store/bulanDataStore.php?tahun='+tahun,
+            dataType: 'jsonp',
+            success: function(data) {
+                var topics = data['topics'];
+                var option = ''; //<option value="0">Setahun</option>';
+                for(var key in topics) {
+                    option+='<option value="'+topics[key]['id']+'"'+(key==topics.length-1?'selected="selected"':'')+'>'+topics[key]['nama']+'</option>';
+                }
+                $(option).appendTo('#select_bulan');
+            },
+            error: function(jqXHR, textStatus, errorThrown) { 
+                load_bulan(tahun);
+            } 
+        });
+    };
+    
+    
+    var loadData = function(tahun, id_periode) {
         $("body").mLoading();
+        var lang = getParameterByName('lang');
+        
         $.ajax({
             type: 'POST',
             crossDomain: true,
             jsonpCallback: "receiveproporsi",
-            url: server+'/organisasi/proporsi.php?periode='+periode+'&propinsi='+propinsi+'&kabupaten='+kabupaten,
-            //data: $('#daftar-form').serialize(),
+            url: server+'/organisasi/proporsi.php?lang='+lang+'&tahun='+tahun+'&id_periode='+id_periode,
             dataType: 'jsonp',
             success: function(data) {
                 if(data['success']) {
-                    
-                    
                     var periode = data['periode'];
                     
                     //SUMMARY
@@ -26,7 +95,6 @@ $(function () {
                     var data_cakupan_map = [];
                     var cakupan_map = data['cakupan_map'];
                     for(var key in cakupan_map) {
-                        //console.log(cakupan_map[key]['cakupan'] +"\t"+cakupan_map[key]['peserta']+"\t"+cakupan_map[key]['populasi']);
                         data_cakupan_map[key] = {
                             "hc-key": cakupan_map[key]['hc_key'],
                             "value": eval(cakupan_map[key]['cakupan']),
@@ -40,35 +108,46 @@ $(function () {
                     var data_cabang_map = [];
                     var cabang_map = data['cabang'];
                     for(var key in cabang_map) {
-                        //console.log(cabang_map[key]['nama'] +"\t"+cabang_map[key]['lat']+"\t"+cabang_map[key]['lon']);
                         data_cabang_map[key] = {
                             "nama": cabang_map[key]['nama'],
+                            "alamat": cabang_map[key]['alamat'],
+                            "telepon": cabang_map[key]['telepon'],
+                            "fax": cabang_map[key]['fax'],
                             "lat": eval(cabang_map[key]['lat']),
-                            "lon": eval(cabang_map[key]['lon'])
+                            "lon": eval(cabang_map[key]['lon']),
+                            "pegawai": cabang_map[key]['pegawai'],
+                            "peserta": cabang_map[key]['peserta'],
+                            "rasio": cabang_map[key]['rasio']
                         };
                     }
-                    peta_cakupan_cabang.series[2].setData(data_cabang_map, true);
                     
-                    //DIVISI REGIONAL
+                    peta_cakupan_cabang.series[2].setData(data_cabang_map, true);                    
+                    peta_cakupan_cabang.title.update({ text: 'Sebaran Kantor Cabang pada Bulan '+periode['bulan']+' '+periode['tahun'] });
+                    
+                    //KEDEPUTIAN WILAYAH
                     var data_divre_map = [];
                     var divre_map = data['divre'];
                     for(var key in divre_map) {
                         data_divre_map[key] = {
                             "nama": divre_map[key]['nama'],
+                            "alamat": divre_map[key]['alamat'],
+                            "telepon": divre_map[key]['telepon'],
+                            "fax": divre_map[key]['fax'],
                             "lat": eval(divre_map[key]['lat']),
-                            "lon": eval(divre_map[key]['lon'])
+                            "lon": eval(divre_map[key]['lon']),
+                            "pegawai": divre_map[key]['pegawai'],
+                            "peserta": divre_map[key]['peserta']             
                         };
                     }
+                    
                     peta_cakupan_divre.series[2].setData(data_divre_map, true);
+                    peta_cakupan_divre.title.update({ text: 'Sebaran Kedeputian Wilayah pada Bulan '+periode['bulan']+' '+periode['tahun'] });
                     
-                    //peta_cakupan_cabang.subtitle.update({ text: 'Keadaan '+periode['bulan']+' '+periode['tahun'] });
-                    //peta_cakupan_divre.subtitle.update({ text: 'Keadaan '+periode['bulan']+' '+periode['tahun'] });
-                    
+                    $("body").mLoading('hide');
                 } else {
-
+                    loadData(tahun, id_periode);
+                    $("body").mLoading('hide');
                 }
-                
-                $("body").mLoading('hide');
             },
             error: function(jqXHR, textStatus, errorThrown) { 
                 $("body").mLoading('hide');
@@ -182,6 +261,9 @@ $(function () {
         chart;
         
     var peta_cakupan_cabang = new Highcharts.Map('map_canvas_cabang', {
+        credits: {
+            enabled: false
+        },
         
         title : {
             text : 'Sebaran Kantor Cabang'
@@ -196,11 +278,9 @@ $(function () {
         colorAxis: {
             dataClasses: [{
                 from: 0,
-                color: "#c5c5c5"
+                color: "#999966"
             }]
         },
-    
-        
     
         legend: {
             enabled: false,
@@ -228,11 +308,11 @@ $(function () {
             mapData: map,
             joinBy: 'hc-key',
             name: 'Kantor Cabang',
-            states: {
-                /*hover: {
+            /*states: {
+                hover: {
                     color: '#C5C5C5'
-                }*/
-            },
+                }
+            },*/
             dataLabels: {
                 enabled: true,
                 format: '{point.name}',
@@ -245,10 +325,7 @@ $(function () {
                     color: '#fff'
                 }
             },
-            
-            tooltip: {
-                pointFormat: 'aa '
-            }        
+            enableMouseTracking: false
         }, {
             name: 'Separators',
             type: 'mapline',
@@ -256,11 +333,13 @@ $(function () {
             color: '#101010',
             enableMouseTracking: false
         }, {
-            // Specify points using lat/lon
             type: 'mappoint',
             name: 'Kantor Cabang',
-            color: '#0000ff',
-            data: []
+            color: '#000000',
+            data: [],
+            tooltip: {
+                pointFormat: '<b>{point.nama}</b><br />{point.alamat}<br /><b>Karyawan: {point.pegawai}</b><br /><b>Peserta: {point.peserta}</b>'
+            }
         }]
     });
     
@@ -280,7 +359,7 @@ $(function () {
         colorAxis: {
             dataClasses: [{
                 from: 0,
-                color: "#c5c5c5"
+                color: "#999966"
             }]
         },
     
@@ -327,9 +406,7 @@ $(function () {
                     color: '#fff'
                 }
             },
-            tooltip: {
-                pointFormat: '{point.x} - {point.y}'
-            }        
+            enableMouseTracking: false                    
         }, {
             name: 'Separators',
             type: 'mapline',
@@ -337,17 +414,19 @@ $(function () {
             color: '#101010',
             enableMouseTracking: false
         }, {
-            // Specify points using lat/lon
             type: 'mappoint',
-            name: 'Divisi Regional',
-            color: '#000',
-            data: []
+            name: 'Kedeputian Wilayah',
+            color: '#000000',
+            data: [],
+            tooltip: {
+                pointFormat: '<b>{point.nama}</b><br />{point.alamat}<br /><b>Karyawan: {point.pegawai}</b><br /><b>Peserta: {point.peserta}</b>'
+            }
         }]
     });
     
-    load_data('', 0, 0);
-    //load_propinsi();
-    //load_periode();
+    loadTahun();
+    loadBulan(0);
+    loadData(0, 0);
     
     Highcharts.setOptions({
         lang: {
