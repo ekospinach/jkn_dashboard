@@ -152,10 +152,19 @@
               
                 <div class="row">
                     <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3><span id="summary_2_nilai"></span><sup style="font-size: 20px"> <span id="summary_2_satuan"></span></sup></h3>
+                                <p><span id="summary_2_nama"></span><span id="summary_bulan_2" class="blink" style="font-weight: bold; color: red; display: none;"><br />Data <span id="text_summary_bulan_2"></span></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-xs-6">
                         <div class="small-box bg-aqua">
                             <div class="inner">
-                                <h3><span id="summary_1_nilai"></span><sup style="font-size: 20px"> <span id="summary_1_satuan"></span></sup></h3>
-                                <p><span id="summary_1_nama"></span></p>
+                                <h3><span id="summary_3_nilai"></span><sup style="font-size: 20px"> <span id="summary_3_satuan"></span></sup></h3>
+                                <p><span id="summary_3_nama"></span><span id="summary_bulan_3" class="blink" style="font-weight: bold; color: red; display: none;"><br />Data <span id="text_summary_bulan_3"></span></span></p>
                             </div>
                         </div>
                     </div>
@@ -163,17 +172,8 @@
                     <div class="col-lg-3 col-xs-6">
                         <div class="small-box bg-green">
                             <div class="inner">
-                                <h3><span id="summary_2_nilai"></span><sup style="font-size: 20px"> <span id="summary_2_satuan"></span></sup></h3>
-                                <p><span id="summary_2_nama"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-3 col-xs-6">
-                        <div class="small-box bg-yellow">
-                            <div class="inner">
-                                <h3><span id="summary_3_nilai"></span><sup style="font-size: 20px"> <span id="summary_3_satuan"></span></sup></h3>
-                                <p><span id="summary_3_nama"></span></p>
+                                <h3><span id="summary_1_nilai"></span><sup style="font-size: 20px"> <span id="summary_1_satuan"></span></sup></h3>
+                                <p><span id="summary_1_nama"></span><span id="summary_bulan_1" class="blink" style="font-weight: bold; color: red; display: none;"><br />Data <span id="text_summary_bulan_1"></span></span></p>
                             </div>
                         </div>
                     </div>
@@ -183,7 +183,9 @@
                         <div class="small-box bg-red">
                             <div class="inner">
                                 <h3><span id="summary_4_nilai"></span><sup style="font-size: 20px"> <span id="summary_4_satuan"></span></sup></h3>
-                                <p><span id="summary_4_nama"></span></p>
+                                <p><span id="summary_4_nama"></span><span id="summary_bulan_4" class="blink" style="font-weight: bold; color: white; display: none;"><br />Data <span id="text_summary_bulan_4"></span></span></p>
+                                <h3><span id="summary_5_nilai"></span><sup style="font-size: 20px"> <span id="summary_5_satuan"></span></sup></h3>
+                                <p><span id="summary_5_nama"></span><span id="summary_bulan_5" class="blink" style="font-weight: bold; color: white; display: none;"><br />Data <span id="text_summary_bulan_5"></span></span></p>
                             </div>
                         </div>
                     </div>
@@ -237,15 +239,6 @@
                     </div>
                 </div>
               
-                <div class="row">
-                    <div class="col-lg-12 col-xs-12">
-                        <div class="box box-danger">
-                            <div class="tab-content no-padding">
-                                <div style="width:100%; height: 540px;" id="klaim_rasio_periode"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
               
                 <div class="row">
                     <div class="col-lg-6 col-xs-12">
@@ -260,16 +253,6 @@
                         <div class="box box-info">
                             <div class="tab-content no-padding">
                                 <div style="width:100%; height:540px;" id="pembayaran_unitcost"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-              
-                <div class="row">
-                    <div class="col-lg-12 col-xs-12">
-                        <div class="box box-danger">
-                            <div class="tab-content no-padding">
-                                <div style="width:100%; height: 540px;" id="pembayaran_kapitasi_periode"></div>
                             </div>
                         </div>
                     </div>

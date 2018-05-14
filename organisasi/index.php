@@ -91,11 +91,12 @@
                     </div>
                     <div class="col-lg-12 col-xs-12" style="border-top: 1px solid #D1D0CE;">
                         <div class="row">
-                            <section class="col-lg-6 col-xs-12 content-header">
+                            <section class="col-lg-8 col-xs-12 content-header">
                                 <h1>&nbsp;Aspek Organisasi</h1>
+                                <br />
                             </section>
 
-                            <div class="col-lg-6 col-xs-12">
+                            <div class="col-lg-4 col-xs-12">
                                 <table style="width: 100%; margin-top: 10px;">
                                     <tr>
                                         <td width="30%">
@@ -123,7 +124,7 @@
                                 </table>
                             </div>                            
                         </div>
-                    </div>                    
+                    </div>                      
                 </div>
                 
                 <div class="row">

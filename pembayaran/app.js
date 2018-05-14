@@ -7,15 +7,6 @@ $(function () {
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     };
     
-    $(window).scroll(function () {
-        if ($(window).scrollTop() > $('#header_logo').height()) {
-          $('#nav_bar').addClass('navbar-fixed');
-        }
-        if ($(window).scrollTop() < $('#header_logo').height()) {
-          $('#nav_bar').removeClass('navbar-fixed');
-        }
-    });
-    
     $('#select_tahun').on('change', function (e) {
         loadBulan(this.value);        
     });
@@ -60,14 +51,14 @@ $(function () {
             dataType: 'jsonp',
             success: function(data) {
                 var topics = data['topics'];
-                var option = '<option value="0">Setahun</option>';
+                var option = ''; //<option value="0">Setahun</option>';
                 for(var key in topics) {
-                    option+='<option value="'+topics[key]['id']+'"'+(topics[key]['selected']?'selected="selected"':'')+'>'+topics[key]['nama']+'</option>';
+                    option+='<option value="'+topics[key]['id']+'"'+(key==topics.length-1?'selected="selected"':'')+'>'+topics[key]['nama']+'</option>';
                 }
                 $(option).appendTo('#select_bulan');
             },
             error: function(jqXHR, textStatus, errorThrown) { 
-                loadBulan(tahun);
+                load_bulan(tahun);
             } 
         });
     };
@@ -76,8 +67,6 @@ $(function () {
     var loadData = function(tahun, id_periode) {
         $("body").mLoading();
         var lang = getParameterByName('lang');
-        //console.log('Tahun: '+tahun);
-        //console.log('ID Periode: '+id_periode);
         
         $.ajax({
             type: 'POST',
@@ -90,7 +79,12 @@ $(function () {
                     
                 if(data['success']) {
                     var periode = data['periode'];
-                    
+                    var periode_pembayaran = data['periode_pembayaran'];
+                    var periode_kapitasi   = data['periode_kapitasi'];
+                    var periode_unitcost   = data['periode_unitcost'];
+                    var periode_cbgs_rjtl  =  data['periode_cbgs_rjtl'];
+                    var periode_cbgs_ritl  =  data['periode_cbgs_ritl'];
+                            
                     //SUMMARY
                     var summary = data['summary'];
                     for(var key in summary) {
@@ -98,7 +92,28 @@ $(function () {
                         $('#summary_'+(eval(key)+1)+'_satuan').text(summary[key]['satuan']);
                         $('#summary_'+(eval(key)+1)+'_nama').text(summary[key]['nama']);
                     }
-                                        
+                    if(periode_pembayaran['id']==periode['id']) {
+                        $('#summary_bulan_1').hide();
+                        $('#summary_bulan_2').hide();
+                        $('#summary_bulan_3').hide();
+                    } else {
+                        $('#summary_bulan_1').show();
+                        $('#summary_bulan_2').show();
+                        $('#summary_bulan_3').show();
+                        $('#text_summary_bulan_1').text(periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']);
+                        $('#text_summary_bulan_2').text(periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']);
+                        $('#text_summary_bulan_3').text(periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']);
+                    }
+                    if(periode_unitcost['id']==periode['id']) {
+                        $('#summary_bulan_4').hide();
+                        $('#summary_bulan_5').hide();
+                    } else {
+                        $('#summary_bulan_4').show();
+                        $('#summary_bulan_5').show();
+                        $('#text_summary_bulan_4').text(periode_unitcost['bulan']+' '+periode_unitcost['tahun']);
+                        $('#text_summary_bulan_5').text(periode_unitcost['bulan']+' '+periode_unitcost['tahun']);
+                    }
+                    
                     //PEMBAYARAN FKTP
                     var arr = [];
                     var data_jumlah = [];
@@ -131,7 +146,7 @@ $(function () {
                     }, false);
                     
                     if(topics[0]!=null) {
-                        chart_pembayaran_fktp.title.update({ text: 'Pembayaran FKTP '+topics[0]['keterangan']+' Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
+                        chart_pembayaran_fktp.title.update({ text: 'Pembayaran FKTP '+topics[0]['keterangan']+' Bulan '+(periode_pembayaran['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']+(periode_pembayaran['id']!=periode['id']?'</span>':'') });
                         chart_pembayaran_fktp.xAxis[0].setCategories(arr, true, true);
                         chart_pembayaran_fktp.redraw();
                     }
@@ -166,7 +181,7 @@ $(function () {
                     }, false);
                     
                     if(topics[0]!=null) {
-                        chart_pembayaran_fkrtl.title.update({ text: 'Pembayaran FKRTL '+topics[0]['keterangan']+' Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
+                        chart_pembayaran_fkrtl.title.update({ text: 'Pembayaran FKRTL '+topics[0]['keterangan']+' Bulan '+(periode_pembayaran['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']+(periode_pembayaran['id']!=periode['id']?'</span>':'') });
                         chart_pembayaran_fkrtl.xAxis[0].setCategories(arr, true, true);
                         chart_pembayaran_fkrtl.redraw();
                     }
@@ -184,6 +199,12 @@ $(function () {
                     var data_total = [];
                     for(var key in topics['fkrtl']) {
                         data_fkrtl[key]  = {y: eval(topics['fkrtl'][key]['jumlah']), label: topics['fkrtl'][key]['view_jumlah']};
+                    }
+                    
+                    var data_promotif_preventif = [];
+                    var data_total = [];
+                    for(var key in topics['promotif_preventif']) {
+                        data_promotif_preventif[key]  = {y: eval(topics['promotif_preventif'][key]['jumlah']), label: topics['promotif_preventif'][key]['view_jumlah']};
                     }
                     
                     var data_total = [];
@@ -227,6 +248,21 @@ $(function () {
                     }, false);
                     
                     chart_pembayaran_periode.addSeries({                        
+                        name: 'Promotif Preventif',
+                        type: 'areaspline',
+                        color: '#641e16',
+                        data: data_promotif_preventif,
+                        dataLabels: {
+                            allowOverlap: true,
+                            style: {
+                                fontSize: '14px',
+                                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
+                                color: '#17202a'
+                            }
+                        }
+                    }, false);
+                    
+                    chart_pembayaran_periode.addSeries({                        
                         name: 'TOTAL',
                         type: 'areaspline',
                         color: '#ff0000',
@@ -241,7 +277,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_pembayaran_periode.title.update({ text: 'Perkembangan Total Pembayaran per Bulan sampai dengan Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
+                    chart_pembayaran_periode.title.update({ text: 'Perkembangan Total Pembayaran per Bulan sampai dengan Bulan '+(periode_pembayaran['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']+(periode_pembayaran['id']!=periode['id']?'</span>':'') });
                     chart_pembayaran_periode.xAxis[0].setCategories(arr, true, true);
                     chart_pembayaran_periode.redraw();
                     
@@ -273,7 +309,7 @@ $(function () {
                     }
                     
                     chart_pembayaran_fktp_periode.addSeries({                        
-                        name: 'RJTP',
+                        name: 'RJTP (Kapitasi)',
                         type: 'areaspline',
                         color: '#f39c12',
                         data: data_rjtp,
@@ -288,7 +324,7 @@ $(function () {
                     }, false);
                     
                     chart_pembayaran_fktp_periode.addSeries({                        
-                        name: 'RITP',
+                        name: 'RITP (Non Kapitasi)',
                         type: 'areaspline',
                         color: '#641e16',
                         data: data_ritp,
@@ -317,7 +353,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_pembayaran_fktp_periode.title.update({ text: 'Perkembangan Pembayaran FKTP per Bulan sampai dengan Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
+                    chart_pembayaran_fktp_periode.title.update({ text: 'Perkembangan Pembayaran FKTP per Bulan sampai dengan Bulan '+(periode_pembayaran['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']+(periode_pembayaran['id']!=periode['id']?'</span>':'') });
                     chart_pembayaran_fktp_periode.xAxis[0].setCategories(arr, true, true);
                     chart_pembayaran_fktp_periode.redraw();
                     
@@ -390,89 +426,9 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_pembayaran_fkrtl_periode.title.update({ text: 'Perkembangan Pembayaran FKRTL per Bulan sampai dengan Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
+                    chart_pembayaran_fkrtl_periode.title.update({ text: 'Perkembangan Pembayaran FKRTL per Bulan sampai dengan Bulan '+(periode_pembayaran['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran['bulan']+' '+periode_pembayaran['tahun']+(periode_pembayaran['id']!=periode['id']?'</span>':'') });
                     chart_pembayaran_fkrtl_periode.xAxis[0].setCategories(arr, true, true);
                     chart_pembayaran_fkrtl_periode.redraw();
-                    
-                    
-                    //PEMBAYARAN KLAIM RASIO PERIODE
-                    var arr = [];
-                    var topics = data['klaim_rasio_periode'];
-                    var data_fktp = [];
-                    for(var key in topics['fktp']) {
-                        arr[key] = topics['fktp'][key]['periode'];
-                        data_fktp[key] = {y: eval(topics['fktp'][key]['jumlah']), label: topics['fktp'][key]['view_jumlah']};
-                    }
-                    
-                    var data_fkrtl = [];                    
-                    for(var key in topics['fkrtl']) {
-                        data_fkrtl[key] = {y: eval(topics['fkrtl'][key]['jumlah']), label: topics['fkrtl'][key]['view_jumlah']};
-                    }
-                    
-                    var data_total = [];
-                    for(var key in topics['total']) {
-                        data_total[key] = {y: eval(topics['total'][key]['jumlah']), label: topics['total'][key]['view_jumlah']};
-                    }
-                    
-                    var data_klaim = [];
-                    for(var key in topics) {
-                        arr[key] = topics[key]['periode'];
-                        data_klaim[key] = {y: eval(topics[key]['jumlah']), label: topics[key]['view_jumlah']};
-                    }
-                    
-                    //clear series
-                    while(eval(chart_klaim_rasio_periode.series.length) > 0) {
-                        chart_klaim_rasio_periode.series[0].remove(true);
-                    }
-                    
-                   /* chart_klaim_rasio_periode.addSeries({                        
-                        name: 'FKTP',
-                        type: 'areaspline',
-                        color: '#f39c12',
-                        data: data_fktp,
-                        dataLabels: {
-                            allowOverlap: true,
-                            style: {
-                                fontSize: '14px',
-                                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                                color: '#17202a'
-                            }
-                        }
-                    }, false);
-                    
-                    chart_klaim_rasio_periode.addSeries({                        
-                        name: 'FKRTL',
-                        type: 'areaspline',
-                        color: '#641e16',
-                        data: data_fkrtl,
-                        dataLabels: {
-                            allowOverlap: true,
-                            style: {
-                                fontSize: '14px',
-                                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                                color: '#17202a'
-                            }
-                        }
-                    }, false);*/
-                    
-                    chart_klaim_rasio_periode.addSeries({                        
-                        name: 'Klaim Rasio',
-                        type: 'areaspline',
-                        color: '#ff0000',
-                        data: data_total,
-                        dataLabels: {
-                            allowOverlap: true,
-                            style: {
-                                fontSize: '14px',
-                                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                                color: '#17202a'
-                            }
-                        }
-                    }, false);
-                    
-                    chart_klaim_rasio_periode.title.update({ text: 'Klaim Rasio Sampai Dengan Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
-                    chart_klaim_rasio_periode.xAxis[0].setCategories(arr, true, true);
-                    chart_klaim_rasio_periode.redraw();
                     
                     //PEMBAYARAN KAPITASI
                     var arr = [];
@@ -504,7 +460,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_pembayaran_kapitasi.title.update({ text: "Pembayaran Kapitasi Bulan " + periode['bulan'] + " " + periode['tahun'] });
+                    chart_pembayaran_kapitasi.title.update({ text: 'Rata-rata Pembayaran Kapitasi per FKTP Bulan '+(periode_kapitasi['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_kapitasi['bulan']+' '+periode_kapitasi['tahun']+(periode_kapitasi['id']!=periode['id']?'</span>':'') });
                     chart_pembayaran_kapitasi.xAxis[0].setCategories(arr, true, true);
                     chart_pembayaran_kapitasi.redraw();
                     
@@ -538,42 +494,9 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_pembayaran_unitcost.title.update({ text: "Pembayaran Unit Cost Bulan " + periode['bulan'] + " " + periode['tahun'] });
+                    chart_pembayaran_unitcost.title.update({ text: 'Pembayaran Unit Cost Bulan '+(periode_unitcost['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_unitcost['bulan']+' '+periode_unitcost['tahun']+(periode_unitcost['id']!=periode['id']?'</span>':'') });
                     chart_pembayaran_unitcost.xAxis[0].setCategories(arr, true, true);
                     chart_pembayaran_unitcost.redraw();
-                    
-                    //PEMBAYARAN KAPITASI PERIODE
-                    var arr = [];
-                    var topics = data['pembayaran_kapitasi_periode'];
-                    var data_kapitasi = [];
-                    for(var key in topics) {
-                        arr[key] = topics[key]['periode'];
-                        data_kapitasi[key] = {y: eval(topics[key]['jumlah']), label: topics[key]['view_jumlah']};
-                    }
-                    
-                    //clear series
-                    while(eval(chart_pembayaran_kapitasi_periode.series.length) > 0) {
-                        chart_pembayaran_kapitasi_periode.series[0].remove(true);
-                    }
-                    
-                    chart_pembayaran_kapitasi_periode.addSeries({                        
-                        name: 'TOTAL KAPITASI',
-                        type: 'areaspline',
-                        color: '#7d6608',
-                        data: data_kapitasi,
-                        dataLabels: {
-                            allowOverlap: true,
-                            style: {
-                                fontSize: '14px',
-                                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                                color: '#17202a'
-                            }
-                        }
-                    }, false);
-                    
-                    chart_pembayaran_kapitasi_periode.title.update({ text: 'Perkembangan Pembayaran Kapitasi per Bulan sampai dengan Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
-                    chart_pembayaran_kapitasi_periode.xAxis[0].setCategories(arr, true, true);
-                    chart_pembayaran_kapitasi_periode.redraw();
                     
                     //PEMBAYARAN UNITCOST PERIODE
                     var arr = [];
@@ -629,7 +552,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_pembayaran_unitcost_periode.addSeries({                        
+                    /*chart_pembayaran_unitcost_periode.addSeries({                        
                         name: 'TOTAL',
                         type: 'areaspline',
                         color: '#ff0000',
@@ -642,9 +565,9 @@ $(function () {
                                 color: '#17202a'
                             }
                         }
-                    }, false);
+                    }, false);*/
                     
-                    chart_pembayaran_unitcost_periode.title.update({ text: 'Perkembangan Rata-rata Besaran Pembayaran per Kasus Sampai Dengan Bulan ' + periode['bulan'] + ' ' + periode['tahun'] });
+                    chart_pembayaran_unitcost_periode.title.update({ text: 'Perkembangan Pembayaran Unit Cost di FKRTL Sampai Dengan Bulan '+(periode_unitcost['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_unitcost['bulan']+' '+periode_unitcost['tahun']+(periode_unitcost['id']!=periode['id']?'</span>':'') });
                     chart_pembayaran_unitcost_periode.xAxis[0].setCategories(arr, true, true);
                     chart_pembayaran_unitcost_periode.redraw();
                     
@@ -680,13 +603,11 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_cbgs_rjtl_kasus.title.update({ text: "10 CBG\'s Kasus Terbanyak pada RJTL Bulan " + periode['bulan'] + " " + periode['tahun'] });                            
+                    chart_cbgs_rjtl_kasus.title.update({ text: '10 CBG\'s Kasus Terbanyak pada RJTL Bulan '+(periode_cbgs_rjtl['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_cbgs_rjtl['bulan']+' '+periode_cbgs_rjtl['tahun']+(periode_cbgs_rjtl['id']!=periode['id']?'</span>':'') });                         
                     chart_cbgs_rjtl_kasus.xAxis[0].setCategories(arr, true, true);
                     chart_cbgs_rjtl_kasus.series[0].setData(data_kasus);
                     chart_cbgs_rjtl_kasus.redraw();
-                    
-                    
-                    
+                                        
                     //10 CBG'S RJTL BIAYA TERBESAR
                     var arr = [];
                     var data_biaya = [];
@@ -719,7 +640,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_cbgs_rjtl_biaya.title.update({ text: "Biaya 10 CBG\'s Kasus Terbanyak pada RJTL Bulan " + periode['bulan'] + " " + periode['tahun'] });                            
+                    chart_cbgs_rjtl_biaya.title.update({ text: 'Biaya 10 CBG\'s Kasus Terbanyak pada RJTL Bulan '+(periode_cbgs_rjtl['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_cbgs_rjtl['bulan']+' '+periode_cbgs_rjtl['tahun']+(periode_cbgs_rjtl['id']!=periode['id']?'</span>':'') });                         
                     chart_cbgs_rjtl_biaya.xAxis[0].setCategories(arr, true, true);
                     chart_cbgs_rjtl_biaya.series[0].setData(data_biaya);
                     chart_cbgs_rjtl_biaya.redraw();
@@ -757,7 +678,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_cbgs_ritl_kasus.title.update({ text: "10 CBG\'s Kasus Terbanyak pada RITL Bulan " + periode['bulan'] + " " + periode['tahun'] });                            
+                    chart_cbgs_ritl_kasus.title.update({ text: '10 CBG\'s Kasus Terbanyak pada RITL Bulan '+(periode_cbgs_ritl['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_cbgs_ritl['bulan']+' '+periode_cbgs_ritl['tahun']+(periode_cbgs_ritl['id']!=periode['id']?'</span>':'') });                         
                     chart_cbgs_ritl_kasus.xAxis[0].setCategories(arr, true, true);
                     chart_cbgs_ritl_kasus.series[0].setData(data_kasus);
                     chart_cbgs_ritl_kasus.redraw();
@@ -794,7 +715,7 @@ $(function () {
                         }
                     }, false);
                     
-                    chart_cbgs_ritl_biaya.title.update({ text: "Biaya 10 CBG\'s Kasus Terbanyak pada RITL Bulan " + periode['bulan'] + " " + periode['tahun'] });                            
+                    chart_cbgs_ritl_biaya.title.update({ text: 'Biaya 10 CBG\'s Kasus Terbanyak pada RITL Bulan '+(periode_cbgs_ritl['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_cbgs_ritl['bulan']+' '+periode_cbgs_ritl['tahun']+(periode_cbgs_ritl['id']!=periode['id']?'</span>':'') });                         
                     chart_cbgs_ritl_biaya.xAxis[0].setCategories(arr, true, true);
                     chart_cbgs_ritl_biaya.series[0].setData(data_biaya);
                     chart_cbgs_ritl_biaya.redraw();
@@ -1340,110 +1261,7 @@ $(function () {
         },
         series: []
     });
-    
-    
-    var chart_klaim_rasio_periode = new Highcharts.Chart({ 
-        credits: {
-            enabled: false
-        },
-        chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            renderTo: 'klaim_rasio_periode'
-        },
-        title: {
-            text: 'Pembayaran Kapitasi',
-            align: 'center'
-        },
-        subtitle: {
-            text: ' ',
-            align: 'left'
-        },
-        xAxis: {
-            categories: [],
-            crosshair: true,
-            gridLineWidth: 1,
-            tickColor: '#fff',
-            startOnTick: false,
-            endOnTick: false,
-            labels: {
-                overflow: 'justify',
-                style: {
-                    color: '#333',
-                    //fontWeight: 'bold',
-                    fontSize: '9pt',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            }
-        },
-        yAxis: [{
-            //min: 990000,
-            title: {
-                text: 'Jumlah Klaim Rasio',
-                style: {
-                    color: '#333',
-                    fontWeight: 'bold',
-                    fontSize: '9pt',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            },
-            labels: {
-                overflow: 'justify',
-                formatter: function () {
-                    return Highcharts.numberFormat(this.value, 0) + ' %';
-                },
-                style: {
-                    color: '#333',
-                    //fontWeight: 'bold',
-                    fontSize: '9pt',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            }
-        }],
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.label}</b>'
-        },
-        plotOptions: {
-            areaspline: {
-                fillOpacity: 0,
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '  {point.label}',
-                    align: 'center',
-                    style: {
-                        fontSize: '12px',
-                        fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                        color: '#fff'
-                    }
-                },
-                showInLegend: true
-            }
-        },
-        legend: {
-            enabled: true,
-            verticalAlign: 'top',
-            align:'center',
-            itemMarginTop: 30,
-            itemMarginBottom: 5,
-            itemStyle: {
-                fontSize: '14px',
-                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                color: 'black'
-            },
-            itemHoverStyle: {
-                color: '#039'
-            },
-            itemHiddenStyle: {
-                color: 'gray'
-            },
-            labelFormat: '{name}'
-        },
-        series: []
-    });
-    
+        
     var chart_pembayaran_kapitasi = new Highcharts.Chart({ 
         credits: {
             enabled: false
@@ -1478,7 +1296,7 @@ $(function () {
         },
         yAxis: {
             title: {
-                text: 'Jumlah',
+                text: 'Jumlah Pembayaran (IDR)',
                 style: {
                     color: '#333',
                     fontWeight: 'bold',
@@ -1488,9 +1306,9 @@ $(function () {
             },
             labels: {
                 overflow: 'justify',
-                //rotation: -35,
+                rotation: -45,
                 formatter: function () {
-                    return Highcharts.numberFormat(this.value/1000, 0)+' M';
+                    return Highcharts.numberFormat(this.value, 0)+' Jt';
                 },
                 style: {
                     color: '#333',
@@ -1590,7 +1408,7 @@ $(function () {
             //gridLineWidth: 1,
             //tickInterval: 2000000,
             title: {
-                text: 'Jumlah Unitcost',
+                text: 'Jumlah Unitcost (IDR)',
                 style: {
                     color: '#333',
                     fontWeight: 'bold',
@@ -1602,7 +1420,7 @@ $(function () {
                 overflow: 'justify',
                 rotation: -45,
                 formatter: function () {
-                    return Highcharts.numberFormat(this.value, 0);
+                    return Highcharts.numberFormat(this.value/1000000, 2)+" Jt";
                 },
                 style: {
                     color: '#333',
@@ -1654,109 +1472,6 @@ $(function () {
                 fontSize: '13px',
                 color: '#333',
                 fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-            },
-            itemHoverStyle: {
-                color: '#039'
-            },
-            itemHiddenStyle: {
-                color: 'gray'
-            },
-            labelFormat: '{name}'
-        },
-        series: []
-    });
-    
-    
-    var chart_pembayaran_kapitasi_periode = new Highcharts.Chart({ 
-        credits: {
-            enabled: false
-        },
-        chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            renderTo: 'pembayaran_kapitasi_periode'
-        },
-        title: {
-            text: 'Pembayaran Kapitasi',
-            align: 'center'
-        },
-        subtitle: {
-            text: ' ',
-            align: 'left'
-        },
-        xAxis: {
-            categories: [],
-            crosshair: true,
-            gridLineWidth: 1,
-            tickColor: '#fff',
-            startOnTick: false,
-            endOnTick: false,
-            labels: {
-                overflow: 'justify',
-                style: {
-                    color: '#333',
-                    //fontWeight: 'bold',
-                    fontSize: '9pt',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            }
-        },
-        yAxis: [{
-            //min: 990000,
-            title: {
-                text: 'Jumlah Pembayaran',
-                style: {
-                    color: '#333',
-                    fontWeight: 'bold',
-                    fontSize: '9pt',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            },
-            labels: {
-                overflow: 'justify',
-                formatter: function () {
-                    return Highcharts.numberFormat(this.value/1000000, 2) + ' T';
-                },
-                style: {
-                    color: '#333',
-                    //fontWeight: 'bold',
-                    fontSize: '9pt',
-                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-                }
-            }
-        }],
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.label}</b>'
-        },
-        plotOptions: {
-            areaspline: {
-                fillOpacity: 0,
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '  {point.label}',
-                    align: 'center',
-                    style: {
-                        fontSize: '12px',
-                        fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                        color: '#fff'
-                    }
-                },
-                showInLegend: true
-            }
-        },
-        legend: {
-            enabled: true,
-            verticalAlign: 'top',
-            align:'center',
-            itemMarginTop: 30,
-            itemMarginBottom: 5,
-            itemStyle: {
-                fontSize: '14px',
-                fontFamily: 'Trebuchet MS, Verdana, sans-serif',
-                color: 'black'
             },
             itemHoverStyle: {
                 color: '#039'
