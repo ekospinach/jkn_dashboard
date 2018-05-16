@@ -67,8 +67,6 @@ $(function () {
     var loadData = function(tahun, id_periode) {
         $("body").mLoading();
         var lang = getParameterByName('lang');
-        //console.log('Tahun: '+tahun);
-        //console.log('ID Periode: '+id_periode);
         
         $.ajax({
             type: 'POST',
@@ -84,6 +82,8 @@ $(function () {
                     var periode_sum_1 = data['periode_sum_1'];
                     var periode_sum_3 = data['periode_sum_3'];
                     var periode_sum_4 = data['periode_sum_4'];
+                    var periode_sum_5 = data['periode_sum_5'];
+                    var periode_sum_6 = data['periode_sum_6'];
                     
                     //SUMMARY
                     var summary = data['summary'];
@@ -115,6 +115,20 @@ $(function () {
                     } else {
                         $('#summary_4_blink').show();
                         $('#text_summary_4_blink').text(periode_sum_4['bulan']+' '+periode_sum_4['tahun']);
+                    }
+                    
+                    if(periode_sum_5['id']==periode['id']) {
+                        $('#summary_5_blink').hide();
+                    } else {
+                        $('#summary_5_blink').show();
+                        $('#text_summary_5_blink').text(periode_sum_5['bulan']+' '+periode_sum_5['tahun']);
+                    }
+                    
+                    if(periode_sum_6['id']==periode['id']) {
+                        $('#summary_6_blink').hide();
+                    } else {
+                        $('#summary_6_blink').show();
+                        $('#text_summary_6_blink').text(periode_sum_6['bulan']+' '+periode_sum_6['tahun']);
                     }
                     
                     //PEMBAYARAN PENDAPATAN PERIODE
@@ -202,7 +216,7 @@ $(function () {
                     }, false);
                     
                     
-                    chart_klaimrasio_periode.title.update({ text: 'Klaim Rasio Setiap Bulan Sampai Dengan Bulan '+(periode_pembayaran_pendapatan['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran_pendapatan['bulan']+' '+periode_pembayaran_pendapatan['tahun']+(periode_pembayaran_pendapatan['id']!=periode['id']?'</span>':'') });
+                    chart_klaimrasio_periode.title.update({ text: 'Klaim Rasio Sampai Dengan Bulan '+(periode_pembayaran_pendapatan['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_pembayaran_pendapatan['bulan']+' '+periode_pembayaran_pendapatan['tahun']+(periode_pembayaran_pendapatan['id']!=periode['id']?'</span>':'') });
                     chart_klaimrasio_periode.xAxis[0].setCategories(arr, true, true);
                     chart_klaimrasio_periode.redraw();
                     
@@ -302,7 +316,7 @@ $(function () {
                     }, false);
                     
                     
-                    chart_rasio_likuiditas_periode.title.update({ text: 'Rasio Likuiditas Setiap Bulan Sampai Dengan Bulan '+(periode_sum_3['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_sum_3['bulan']+' '+periode_sum_3['tahun']+(periode_sum_3['id']!=periode['id']?'</span>':'') });
+                    chart_rasio_likuiditas_periode.title.update({ text: 'Rasio Likuiditas Sampai Dengan Bulan '+(periode_sum_3['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_sum_3['bulan']+' '+periode_sum_3['tahun']+(periode_sum_3['id']!=periode['id']?'</span>':'') });
                     chart_rasio_likuiditas_periode.xAxis[0].setCategories(arr, true, true);
                     chart_rasio_likuiditas_periode.redraw();
                     
@@ -337,7 +351,7 @@ $(function () {
                     }, false);
                     
                     
-                    chart_cadangan_teknis_periode.title.update({ text: 'Cadangan Teknis Setiap Bulan Sampai Dengan Bulan '+(periode_sum_4['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_sum_4['bulan']+' '+periode_sum_4['tahun']+(periode_sum_4['id']!=periode['id']?'</span>':'') });
+                    chart_cadangan_teknis_periode.title.update({ text: 'Cadangan Teknis Sampai Dengan Bulan '+(periode_sum_4['id']!=periode['id']?'<span class="blink" style="color: red;">':'')+periode_sum_4['bulan']+' '+periode_sum_4['tahun']+(periode_sum_4['id']!=periode['id']?'</span>':'') });
                     chart_cadangan_teknis_periode.xAxis[0].setCategories(arr, true, true);
                     chart_cadangan_teknis_periode.redraw();
                     

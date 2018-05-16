@@ -151,7 +151,7 @@
                 </div>
               
                 <div class="row">
-                    <div class="col-lg-3 col-xs-6">
+                    <div class="col-lg-4 col-xs-12">
                         <div class="small-box bg-aqua">
                             <div class="inner">
                                 <h3><span id="summary_1_nilai"></span><sup style="font-size: 20px"> <span id="summary_1_satuan"></span></sup></h3>
@@ -160,7 +160,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-lg-3 col-xs-6">
+                    <div class="col-lg-4 col-xs-12">
                         <div class="small-box bg-green">
                             <div class="inner">
                                 <h3><span id="summary_2_nilai"></span><sup style="font-size: 20px"> <span id="summary_2_satuan"></span></sup></h3>
@@ -169,7 +169,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-lg-3 col-xs-6">
+                    <div class="col-lg-4 col-xs-12">
                         <div class="small-box bg-yellow">
                             <div class="inner">
                                 <h3><span id="summary_3_nilai"></span><sup style="font-size: 20px"> <span id="summary_3_satuan"></span></sup></h3>
@@ -177,19 +177,40 @@
                             </div>
                         </div>
                     </div>
+                </div>
+              
+                <div class="row">    
                     
-                    <div class="col-lg-3 col-xs-6">
-                        <!-- small box -->
-                        <div class="small-box bg-red">
+                    <div class="col-lg-4 col-xs-12">
+                        <div class="small-box bg-aqua">
                             <div class="inner">
                                 <h3><span id="summary_4_nilai"></span><sup style="font-size: 20px"> <span id="summary_4_satuan"></span></sup></h3>
-                                <p><span id="summary_4_nama"></span><span id="summary_4_blink" class="blink" style="font-weight: bold; color: white; display: none;"><br />Data <span id="text_summary_4_blink"></span></span></p>
+                                <p><span id="summary_4_nama"></span><span id="summary_4_blink" class="blink" style="font-weight: bold; color: red; display: none;"><br />Data <span id="text_summary_4_blink"></span></span></p>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="col-lg-4 col-xs-12">
+                        <div class="small-box bg-green">
+                            <div class="inner">
+                                <h3><span id="summary_5_nilai"></span><sup style="font-size: 20px"> <span id="summary_5_satuan"></span></sup></h3>
+                                <p><span id="summary_5_nama"></span><span id="summary_5_blink" class="blink" style="font-weight: bold; color: red; display: none;"><br />Data <span id="text_summary_5_blink"></span></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-xs-12">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3><span id="summary_6_nilai"></span><sup style="font-size: 20px"> <span id="summary_6_satuan"></span></sup></h3>
+                                <p><span id="summary_6_nama"></span><span id="summary_6_blink" class="blink" style="font-weight: bold; color: red; display: none;"><br />Data <span id="text_summary_6_blink"></span></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
               
-                <div class="row">
+                <div class="row" style="display: none;">
                     <div class="col-lg-12 col-xs-12">
                         <div class="box box-danger">
                             <div class="tab-content no-padding">
@@ -211,7 +232,7 @@
                     </div>
                 </div>
               
-                <div class="row">
+                <div class="row" style="display: none;">
                     <div class="col-lg-6 col-xs-12">
                         <div class="box box-danger">
                             <div class="tab-content no-padding">
